@@ -5,6 +5,7 @@ cp_plaque = 444;% capacite thermique massique (J/K/Kg) : valeur de l'acier
 beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
 %%%%%%%%%%%%%%%%%%
 
+% Test branche para
 
 %%%%% Fissure %%%%%
 rho_fiss = 1000;% masse volumique (Kg/m^3) : valeur ad hoc
