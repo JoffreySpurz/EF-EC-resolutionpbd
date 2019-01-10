@@ -7,7 +7,7 @@ beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
 
 
 %%%%% Fissure %%%%%
-rho_fiss = 1000;% masse volumique (Kg/m^3) : valeur ad hoc
+rho_fiss = 100;% masse volumique (Kg/m^3) : valeur ad hoc
 cp_fiss = 1004;% capacite thermique massique (J/K/Kg) : valeur de l'air
 beta_fiss = rho_fiss*cp_fiss ; % rho*cp dans la fissure
 
