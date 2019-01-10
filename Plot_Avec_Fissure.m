@@ -8,8 +8,14 @@ clear; close all;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%% Maillage %%%%%%%%%%
+% Fissure carree
+pos_x = -0.5;
+pos_y = -0.75;
+epaisseur = 0.25;
+longueur = 1;
+
 % 1 Unit square
-nodes = [-1 -1; 1 -1 ; 1 1; -1 1;-0.5 -0.5 ; 0.5 -0.5; 0.5 -0.75 ;-0.5 -0.75];
+nodes = [-1 -1; 1 -1 ; 1 1; -1 1;pos_x pos_y ; pos_x+longueur pos_y; pos_x+longueur pos_y+epaisseur ;pos_x pos_y+epaisseur];
 edges = {{1,2} {2,3} {3,4} {4,1} {5,6,'lr'} {6,7,'lr'} {7,8,'lr'} {8,5,'lr'}}; 
 domain1 = Domain(nodes,edges);
 
@@ -79,7 +85,7 @@ Fc = dt*mesh1.P1('x.^2+y.^2<0.2^2');
 %%%%%%%%% Resolution %%%%%%%%%%%
 
 %%% Avec laser
-for i = 1:10
+for i = 1:niter
     %%% Affichage
     mesh1.surf(U)
     caxis([0 0.04])
@@ -89,21 +95,21 @@ for i = 1:10
     U = Usolve(A, M, Fc, I, U);
 end
 
-% On indique que le laser va etre coupe
-mesh1.surf(zeros(nP,1));
-pause(1);
-
-%%% Sans laser
-for i = 11:niter
-    %%% Affichage
-    mesh1.surf(U)
-    caxis([0 0.04])
-    pause(0.1)
-    
-    %%% Iteration
-    U = Usolve(A, M, zeros(nP,1), I, U);
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % On indique que le laser va etre coupe
+% mesh1.surf(zeros(nP,1));
+% pause(1);
+% 
+% %%% Sans laser
+% for i = 11:niter
+%     %%% Affichage
+%     mesh1.surf(U)
+%     caxis([0 0.04])
+%     pause(0.1)
+%     
+%     %%% Iteration
+%     U = Usolve(A, M, zeros(nP,1), I, U);
+% end
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%% Affichage au temps final %%%%%%%%%
