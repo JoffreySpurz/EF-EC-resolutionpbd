@@ -1,5 +1,7 @@
 clear; close all;
 
+tic
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%     Resolution de l'equation de la chaleur avec 
 %%% conditions aux limites de Dirichlet homogene, 
@@ -37,7 +39,7 @@ nT = length(T);
 U = sparse(nP, 1); 
 
 % Iteration
-niter = 15; % Nombre d'iterations pour la resolution
+niter = 1000; % Nombre d'iterations pour la resolution
 dt = 0.1; % Pas en temps
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -72,39 +74,15 @@ Fc = dt*mesh1.P1('x.^2+y.^2<0.2^2');
 
 %%% Avec laser
 for i = 1:10
-    %%% Affichage
-    mesh1.surf(U)
-    caxis([0 0.05])
-    pause(0.1)
-    
     %%% Iteration
     U = Usolve(A, M, Fc, I, U);
 end
 
-% On indique que le laser va etre coupe
-mesh1.surf(zeros(nP,1));
-pause(1);
-
 %%% Sans laser
 for i = 11:niter
-    %%% Affichage
-    mesh1.surf(U)
-    caxis([0 0.05])
-    pause(0.1)
-    
     %%% Iteration
     U = Usolve(A, M, zeros(nP,1), I, U);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-%%%%%%%%%%% Affichage au temps final %%%%%%%%%
-% mesh1.surf(U)
-% caxis([0 1000])
-% 
-% figure;
-% mesh1.plot
-
-% figure;
-% mesh1.plot
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+toc

@@ -9,7 +9,9 @@ clear; close all;
 
 %%%%%%%%%% Maillage %%%%%%%%%%
 % 1 Unit square
-domain1 = Domain('square');
+nodes = [-1 -1; 1 -1 ; 1 1; -1 1;-0.5 -0.5 ; 0.5 -0.5; 0.5 -0.75 ;-0.5 -0.75];
+edges = {{1,2} {2,3} {3,4} {4,1} {5,6,'lr'} {6,7,'lr'} {7,8,'lr'} {8,5,'lr'}}; 
+domain1 = Domain(nodes,edges);
 
 % mesh
 dx = 0.1; % taille d'un element
@@ -35,6 +37,10 @@ nT = length(T);
 
 % Condition initiale
 U = sparse(nP, 1); 
+
+% Plaque
+Beta = beta( nT); % Vecteur Rho*cp sur chaque triangle
+Lambda = lambda(nT); % Vecteur Conductivite thermique (lambda) sur les triangles
 
 % Iteration
 niter = 15; % Nombre d'iterations pour la resolution
@@ -63,6 +69,8 @@ A = M + Kc;
 
 
 %%% Laser
+Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
+S = Sv * pi*(0.2/10^5)^2; % Puissance du laser applique a la plaque (W)
 % Second membre
 Fc = dt*mesh1.P1('x.^2+y.^2<0.2^2');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,7 +82,7 @@ Fc = dt*mesh1.P1('x.^2+y.^2<0.2^2');
 for i = 1:10
     %%% Affichage
     mesh1.surf(U)
-    caxis([0 0.05])
+    caxis([0 0.04])
     pause(0.1)
     
     %%% Iteration
@@ -89,7 +97,7 @@ pause(1);
 for i = 11:niter
     %%% Affichage
     mesh1.surf(U)
-    caxis([0 0.05])
+    caxis([0 0.04])
     pause(0.1)
     
     %%% Iteration

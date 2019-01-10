@@ -9,7 +9,18 @@ clear; close all;
 
 %%%%%%%%%% Maillage %%%%%%%%%%
 % 1 Unit square
-domain1 = Domain('square');
+nodes = [-1 -1; 1 -1 ; 1 1; -1 1;-0.5 -0.5 ; 0.5 -0.5; 0.5 ;];
+edges = {
+         % Plaque rectangulaire
+         {1,2},{2,3},{3,4},{4,1}
+         
+         % Fissure rectangulaire
+         {5,6,'lr'} % cote gauche
+         {6,7,'lr'}% cote droit
+         {7,8,'lr'}% haut
+         {8,5,'lr'}% Bas
+         }; 
+domain1 = Domain(nodes,edges);
 
 % mesh
 dx = 0.1; % taille d'un element
@@ -36,6 +47,10 @@ nT = length(T);
 % Condition initiale
 U = sparse(nP, 1); 
 
+% Plaque
+Beta = beta( nT); % Vecteur Rho*cp sur chaque triangle
+Lambda = lambda(nT); % Vecteur Conductivite thermique (lambda) sur les triangles
+
 % Iteration
 niter = 15; % Nombre d'iterations pour la resolution
 dt = 0.1; % Pas en temps
@@ -44,14 +59,14 @@ dt = 0.1; % Pas en temps
 %%%%% Matrices d'iterations %%%%%%%%
 %%% Raideur
 % Paramètre : Rho*cp sur chaque triangle
-LAMBDA = mesh1.P0(1,2);
+LAMBDA = [Lambda Lambda Lambda Lambda].*mesh1.P0(1,2);
 % Matrice de raideur
 Kc = dt*mesh1.stiffness(LAMBDA);%matriceK(P, T, Lambda, dt);
 
 
 %%% Masse
 % Paramètre : Conductivite thermique (lambda) sur les triangles
-BETA = mesh1.P0(1);
+BETA = Beta.*mesh1.P0(1);
 % Matrice de masse
 M = mesh1.mass(BETA);
 %mesh1.mass(Beta.*ones(nT,1));
@@ -63,8 +78,10 @@ A = M + Kc;
 
 
 %%% Laser
+Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
+S = Sv * pi*(0.2/10^5)^2; % Puissance du laser applique a la plaque (W)
 % Second membre
-Fc = dt*mesh1.P1('x.^2+y.^2<0.2^2');
+Fc = dt*S*mesh1.P1('x.^2+y.^2<0.2^2');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -74,7 +91,7 @@ Fc = dt*mesh1.P1('x.^2+y.^2<0.2^2');
 for i = 1:10
     %%% Affichage
     mesh1.surf(U)
-    caxis([0 0.05])
+    %caxis([0 0.001])
     pause(0.1)
     
     %%% Iteration
@@ -89,7 +106,7 @@ pause(1);
 for i = 11:niter
     %%% Affichage
     mesh1.surf(U)
-    caxis([0 0.05])
+    %caxis([0 0.05])
     pause(0.1)
     
     %%% Iteration

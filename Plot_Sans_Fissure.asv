@@ -36,6 +36,12 @@ nT = length(T);
 % Condition initiale
 U = sparse(nP, 1); 
 
+% Plaque
+rho_plaque = 7850;% masse volumique (Kg/m^3) : valeur de l'acier
+cp_plaque = 444;% capacite thermique massique (J/K/Kg) : valeur de l'acier
+beta_plaque = 1;%rho_plaque*cp_plaque; % rho*cp dans la plaque
+lambda_plaque = 1;%50.2; % conductivite thermique (W/M/K) : valeur de l'acier 
+
 % Iteration
 niter = 15; % Nombre d'iterations pour la resolution
 dt = 0.1; % Pas en temps
@@ -44,14 +50,14 @@ dt = 0.1; % Pas en temps
 %%%%% Matrices d'iterations %%%%%%%%
 %%% Raideur
 % Paramètre : Rho*cp sur chaque triangle
-LAMBDA = mesh1.P0(1,2);
+LAMBDA = mesh1.P0(lambda_plaque,2);
 % Matrice de raideur
 Kc = dt*mesh1.stiffness(LAMBDA);%matriceK(P, T, Lambda, dt);
 
 
 %%% Masse
 % Paramètre : Conductivite thermique (lambda) sur les triangles
-BETA = mesh1.P0(1);
+BETA = mesh1.P0(beta_plaque);
 % Matrice de masse
 M = mesh1.mass(BETA);
 %mesh1.mass(Beta.*ones(nT,1));
@@ -63,8 +69,10 @@ A = M + Kc;
 
 
 %%% Laser
+Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
+S = Sv * pi*(0.2/10^3)^2; % Puissance du laser applique a la plaque (W)
 % Second membre
-Fc = dt*mesh1.P1('x.^2+y.^2<0.2^2');
+Fc = dt*S*mesh1.P1('x.^2+y.^2<0.2^2');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -74,22 +82,22 @@ Fc = dt*mesh1.P1('x.^2+y.^2<0.2^2');
 for i = 1:10
     %%% Affichage
     mesh1.surf(U)
-    caxis([0 0.05])
+    %caxis([0 0.001])
     pause(0.1)
     
     %%% Iteration
     U = Usolve(A, M, Fc, I, U);
 end
 
-% On indique que le laser va etre coupe
-mesh1.surf(zeros(nP,1));
-pause(1);
+% % On indique que le laser va etre coupe
+% mesh1.surf(zeros(nP,1));
+% pause(1);
 
 %%% Sans laser
 for i = 11:niter
     %%% Affichage
     mesh1.surf(U)
-    caxis([0 0.05])
+    %caxis([0 0.05])
     pause(0.1)
     
     %%% Iteration

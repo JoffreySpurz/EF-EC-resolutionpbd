@@ -12,7 +12,7 @@ clear; close all;
 domain1 = Domain('square');
 
 % mesh
-dx = 0.1; % taille d'un element
+dx = 0.05; % taille d'un element
 mesh1 = Mesh(domain1,dx);
 
 % Liste des sommets
@@ -37,8 +37,10 @@ nT = length(T);
 U = sparse(nP, 1); 
 
 % Plaque
-Beta = beta( nT); % Vecteur Rho*cp sur chaque triangle
-Lambda = lambda(nT); % Vecteur Conductivite thermique (lambda) sur les triangles
+rho_plaque = 7850;% masse volumique (Kg/m^3) : valeur de l'acier
+cp_plaque = 444;% capacite thermique massique (J/K/Kg) : valeur de l'acier
+beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
+lambda_plaque = 50.2; % conductivite thermique (W/M/K) : valeur de l'acier 
 
 % Iteration
 niter = 15; % Nombre d'iterations pour la resolution
@@ -48,14 +50,14 @@ dt = 0.1; % Pas en temps
 %%%%% Matrices d'iterations %%%%%%%%
 %%% Raideur
 % Paramètre : Rho*cp sur chaque triangle
-LAMBDA = [Lambda Lambda Lambda Lambda].*mesh1.P0(1,2);
+LAMBDA = mesh1.P0(lambda_plaque,2);
 % Matrice de raideur
 Kc = dt*mesh1.stiffness(LAMBDA);%matriceK(P, T, Lambda, dt);
 
 
 %%% Masse
 % Paramètre : Conductivite thermique (lambda) sur les triangles
-BETA = Beta.*mesh1.P0(1);
+BETA = mesh1.P0(beta_plaque);
 % Matrice de masse
 M = mesh1.mass(BETA);
 %mesh1.mass(Beta.*ones(nT,1));
@@ -68,40 +70,40 @@ A = M + Kc;
 
 %%% Laser
 Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
-S = Sv * pi*(0.2/10^5)^2; % Puissance du laser applique a la plaque (W)
+S = Sv * pi*(0.2/10^3)^2; % Puissance du laser applique a la plaque (W)
 % Second membre
-Fc = dt*S*mesh1.P1('x.^2+y.^2<0.2^2');
+Fc = dt*S*mesh1.P1('x.^2+y.^2<0.1^2');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%% Resolution %%%%%%%%%%%
 
 %%% Avec laser
-for i = 1:10
+for i = 1:niter
     %%% Affichage
     mesh1.surf(U)
-    %caxis([0 0.001])
+    caxis([0 10])
     pause(0.1)
     
     %%% Iteration
     U = Usolve(A, M, Fc, I, U);
 end
 
-% On indique que le laser va etre coupe
-mesh1.surf(zeros(nP,1));
-pause(1);
+% % On indique que le laser va etre coupe
+% mesh1.surf(zeros(nP,1));
+% pause(1);
 
-%%% Sans laser
-for i = 11:niter
-    %%% Affichage
-    mesh1.surf(U)
-    %caxis([0 0.05])
-    pause(0.1)
-    
-    %%% Iteration
-    U = Usolve(A, M, zeros(nP,1), I, U);
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%% Sans laser
+% for i = 11:niter
+%     %%% Affichage
+%     mesh1.surf(U)
+%     %caxis([0 0.05])
+%     pause(0.1)
+%     
+%     %%% Iteration
+%     U = Usolve(A, M, zeros(nP,1), I, U);
+% end
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%% Affichage au temps final %%%%%%%%%
