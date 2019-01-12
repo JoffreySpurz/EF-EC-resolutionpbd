@@ -12,7 +12,7 @@ clear; close all;
 domain1 = Domain('square');
 
 % mesh
-dx = 0.05; % taille d'un element
+dx = 0.1; % taille d'un element
 mesh1 = Mesh(domain1,dx);
 
 % Liste des sommets
@@ -43,7 +43,7 @@ beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
 lambda_plaque = 50.2; % conductivite thermique (W/M/K) : valeur de l'acier 
 
 % Iteration
-niter = 15; % Nombre d'iterations pour la resolution
+niter = 1000; % Nombre d'iterations pour la resolution
 dt = 0.1; % Pas en temps
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -70,7 +70,7 @@ A = M + Kc;
 
 %%% Laser
 Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
-S = Sv * pi*(0.2/10^3)^2; % Puissance du laser applique a la plaque (W)
+S = Sv * pi*(0.2/10^9)^2; % Puissance du laser applique a la plaque (W)
 % Second membre
 Fc = dt*S*mesh1.P1('x.^2+y.^2<0.1^2');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -82,7 +82,7 @@ Fc = dt*S*mesh1.P1('x.^2+y.^2<0.1^2');
 for i = 1:niter
     %%% Affichage
     mesh1.surf(U)
-    caxis([0 10])
+    %caxis([0 10])
     pause(0.1)
     
     %%% Iteration

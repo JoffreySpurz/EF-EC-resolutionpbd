@@ -10,7 +10,7 @@ clear; close all;
 %%%%%%%%%% Maillage %%%%%%%%%%
 % Fissure carree
 pos_x = -0.5;
-pos_y = -0.75;
+pos_y = 0.5;
 epaisseur = 0.25;
 longueur = 1;
 
@@ -44,10 +44,27 @@ nT = length(T);
 % Condition initiale
 U = sparse(nP, 1); 
 
-% Plaque
-Beta = beta( nT); % Vecteur Rho*cp sur chaque triangle
-Lambda = lambda(nT); % Vecteur Conductivite thermique (lambda) sur les triangles
+% Conductivite thermique (W/m/K)
+lambda_plaque = 50.2; % valeur de l'acier 
+lambda_fiss = 0.024; %  valeur de l'air
 
+% Masse volumique (Kg/m^3)
+rho_plaque = 7850;% valeur de l'acier
+rho_fiss = 100;% valeur ad hoc
+
+% Capacite thermique massique (J/K/Kg)
+cp_plaque = 444;% valeur de l'acier
+cp_fiss = 1004;% valeur de l'air
+
+% Beta = Rho*cp (K/K/m^3)
+beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
+beta_fiss = rho_fiss*cp_fiss ; % rho*cp dans la fissure
+
+% Plaque avec fissures
+alpha = 1* mesh1.P1([ num2str(pos_x) '<=x']).*mesh1.P1(['x<=' num2str(pos_x+longueur)]).*mesh1.P1([num2str(pos_y) '<=y']).*mesh1.P1(['y<= ' num2str(pos_y+epaisseur)]); % Indicatrice : 1 dans la fissure 0 sinon
+Beta = beta_plaque*(1+(beta_fiss-beta_plaque)/beta_plaque*alpha); % Vecteur Rho*cp sur chaque triangle
+Lambda = lambda_plaque*(1+(lambda_fiss-lambda_plaque)/lambda_plaque*alpha); % Vecteur Conductivite thermique (lambda) sur les triangles
+git
 % Iteration
 niter = 15; % Nombre d'iterations pour la resolution
 dt = 0.1; % Pas en temps
