@@ -17,7 +17,9 @@ longueur = 1;
 % 1 Unit square
 nodes = [-1 -1; 1 -1 ; 1 1; -1 1;pos_x pos_y ; pos_x+longueur pos_y; pos_x+longueur pos_y+epaisseur ;pos_x pos_y+epaisseur];
 edges = {{1,2} {2,3} {3,4} {4,1} {5,6,'lr'} {6,7,'lr'} {7,8,'lr'} {8,5,'lr'}}; 
+edges2 = {{1,2} {2,3} {3,4} {4,1}};
 domain1 = Domain(nodes,edges);
+domain1 = Domain(nodes,edges2);
 
 % mesh
 dx = 0.1; % taille d'un element
@@ -47,10 +49,13 @@ U = sparse(nP, 1);
 % Conductivite thermique (W/m/K)
 lambda_plaque = 50.2; % valeur de l'acier 
 lambda_fiss = 0.024; %  valeur de l'air
+% lambda_plaque =1;
+% lambda_fiss =1;
+% lambda_fiss = lambda_plaque;
 
 % Masse volumique (Kg/m^3)
 rho_plaque = 7850;% valeur de l'acier
-rho_fiss = 100;% valeur ad hoc
+rho_fiss = 1;% valeur ad hoc
 
 % Capacite thermique massique (J/K/Kg)
 cp_plaque = 444;% valeur de l'acier
@@ -59,12 +64,15 @@ cp_fiss = 1004;% valeur de l'air
 % Beta = Rho*cp (K/K/m^3)
 beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
 beta_fiss = rho_fiss*cp_fiss ; % rho*cp dans la fissure
+% beta_plaque = 1;
+% beta_fiss = 1;
+% beta_fiss = beta_plaque;
 
 % Plaque avec fissures
-alpha = 1* mesh1.P1([ num2str(pos_x) '<=x']).*mesh1.P1(['x<=' num2str(pos_x+longueur)]).*mesh1.P1([num2str(pos_y) '<=y']).*mesh1.P1(['y<= ' num2str(pos_y+epaisseur)]); % Indicatrice : 1 dans la fissure 0 sinon
+alpha = 1* mesh1.P0([ num2str(pos_x) '<=x']).*mesh1.P0(['x<=' num2str(pos_x+longueur)]).*mesh1.P0([num2str(pos_y) '<=y']).*mesh1.P0(['y<= ' num2str(pos_y+epaisseur)]); % Indicatrice : 1 dans la fissure 0 sinon
 Beta = beta_plaque*(1+(beta_fiss-beta_plaque)/beta_plaque*alpha); % Vecteur Rho*cp sur chaque triangle
 Lambda = lambda_plaque*(1+(lambda_fiss-lambda_plaque)/lambda_plaque*alpha); % Vecteur Conductivite thermique (lambda) sur les triangles
-git
+
 % Iteration
 niter = 15; % Nombre d'iterations pour la resolution
 dt = 0.1; % Pas en temps
@@ -73,14 +81,14 @@ dt = 0.1; % Pas en temps
 %%%%% Matrices d'iterations %%%%%%%%
 %%% Raideur
 % Paramètre : Rho*cp sur chaque triangle
-LAMBDA = mesh1.P0(1,2);
+LAMBDA = [Lambda Lambda Lambda Lambda].*mesh1.P0(1,2);
 % Matrice de raideur
 Kc = dt*mesh1.stiffness(LAMBDA);%matriceK(P, T, Lambda, dt);
 
 
 %%% Masse
 % Paramètre : Conductivite thermique (lambda) sur les triangles
-BETA = mesh1.P0(1);
+BETA = Beta.*mesh1.P0(1);
 % Matrice de masse
 M = mesh1.mass(BETA);
 %mesh1.mass(Beta.*ones(nT,1));
@@ -93,9 +101,9 @@ A = M + Kc;
 
 %%% Laser
 Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
-S = Sv * pi*(0.2/10^5)^2; % Puissance du laser applique a la plaque (W)
+S = Sv * pi*0.2^2/10^5; % Puissance du laser applique a la plaque (W)
 % Second membre
-Fc = dt*mesh1.P1('x.^2+y.^2<0.2^2');
+Fc = dt*S*mesh1.P1('x.^2+y.^2<0.2^2');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

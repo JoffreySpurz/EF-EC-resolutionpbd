@@ -43,7 +43,7 @@ beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
 lambda_plaque = 50.2; % conductivite thermique (W/M/K) : valeur de l'acier 
 
 % Iteration
-niter = 1000; % Nombre d'iterations pour la resolution
+niter = 100; % Nombre d'iterations pour la resolution
 dt = 0.1; % Pas en temps
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -72,7 +72,7 @@ A = M + Kc;
 Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
 S = Sv * pi*(0.2/10^9)^2; % Puissance du laser applique a la plaque (W)
 % Second membre
-Fc = dt*S*mesh1.P1('x.^2+y.^2<0.1^2');
+Fc = dt*S*mesh1.P1('x.^2+y.^2<0.2^2');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -82,7 +82,7 @@ Fc = dt*S*mesh1.P1('x.^2+y.^2<0.1^2');
 for i = 1:niter
     %%% Affichage
     mesh1.surf(U)
-    %caxis([0 10])
+    caxis([0 0.1]*10^(-11))
     pause(0.1)
     
     %%% Iteration
