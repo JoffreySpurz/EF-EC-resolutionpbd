@@ -40,10 +40,10 @@ U = sparse(nP, 1);
 rho_plaque = 7850;% masse volumique (Kg/m^3) : valeur de l'acier
 cp_plaque = 444;% capacite thermique massique (J/K/Kg) : valeur de l'acier
 beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
-lambda_plaque = 50.2; % conductivite thermique (W/M/K) : valeur de l'acier 
+lambda_plaque = 50.2; % conductivite thermique (W/m/K) : valeur de l'acier 
 
 % Iteration
-niter = 100; % Nombre d'iterations pour la resolution
+niter = 15; % Nombre d'iterations pour la resolution
 dt = 0.1; % Pas en temps
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -70,7 +70,7 @@ A = M + Kc;
 
 %%% Laser
 Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
-S = Sv * pi*(0.2/10^9)^2; % Puissance du laser applique a la plaque (W)
+S = Sv *10^(-5); % Puissance volumique du laser utilisee
 % Second membre
 Fc = dt*S*mesh1.P1('x.^2+y.^2<0.2^2');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -82,7 +82,7 @@ Fc = dt*S*mesh1.P1('x.^2+y.^2<0.2^2');
 for i = 1:niter
     %%% Affichage
     mesh1.surf(U)
-    caxis([0 0.1]*10^(-11))
+    caxis([0 1]*10^(-2))
     pause(0.1)
     
     %%% Iteration

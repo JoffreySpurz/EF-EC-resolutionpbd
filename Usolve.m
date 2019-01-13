@@ -16,12 +16,13 @@ A(I,:) = 0;
 A(I,I) = speye(nI);
 Mc(I,:) = 0;
 Mc(I,I) = speye(nI);
-Fc(I) = 0;
+%Fc(I) = 0;% utile ?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%% Resolution %%%
-U = A\(Mc*(U+Fc));
+%U = A\(Mc*(U+Fc));% Donnee par les tuteurs
+U = A\(Mc*U+Fc);% Bonne formulation ?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 

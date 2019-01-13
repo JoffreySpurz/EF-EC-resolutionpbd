@@ -63,8 +63,10 @@ A = M + Kc;
 
 
 %%% Laser
+Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
+S = Sv *10^(-12); % Puissance volumique du laser utilisee
 % Second membre
-Fc = dt*mesh1.P1('x.^2+y.^2<0.2^2');
+Fc = dt*S*mesh1.P1('x.^2+y.^2<0.2^2');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

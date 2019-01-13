@@ -112,14 +112,14 @@ dt = 0.1; % Pas en temps
 %%%%% Matrices d'iterations %%%%%%%%
 %%% Raideur
 % Paramètre : Rho*cp sur chaque triangle
-LAMBDA = [Lambda Lambda Lambda Lambda].*mesh1.P0(1,2);
+LAMBDA = mesh1.P0(Lambda,2);
 % Matrice de raideur
 Kc = dt*mesh1.stiffness(LAMBDA);%matriceK(P, T, Lambda, dt);
 
 
 %%% Masse
 % Paramètre : Conductivite thermique (lambda) sur les triangles
-BETA = Beta.*mesh1.P0(1);
+BETA = mesh1.P0(Beta);
 % Matrice de masse
 M = mesh1.mass(BETA);
 %mesh1.mass(Beta.*ones(nT,1));
@@ -132,7 +132,7 @@ A = M + Kc;
 
 %%% Laser
 Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
-S = Sv * pi*0.2^2/10^5; % Puissance du laser applique a la plaque (W)
+S = Sv *10^(-6); % Puissance volumique du laser utilisee
 % Second membre
 Fc = dt*S*mesh1.P1('x.^2+y.^2<0.2^2');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
