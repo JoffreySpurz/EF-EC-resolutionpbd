@@ -15,13 +15,13 @@ load('Probleme_direct_avec_fissure_rectangulaire','U', 'mesh1')
 
 %%%%%%%%% Affichage %%%%%%%%%%%
 niter = length(U(1,:));
-pas = 5;
+pas = 20;
 
 %%% Avec laser
 for i = 1:pas:niter
     %%% Affichage
     mesh1.surf(U(:,i))
-    %caxis([0 0.05])
+    %caxis([0 4]*10^7)
     pause(0.1)
 end
 

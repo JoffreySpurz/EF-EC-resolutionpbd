@@ -11,11 +11,11 @@ clear; close all;
 % Fissure carree
 pos_x = -0.5;
 pos_y = 0.25;
-epaisseur = 0.1;
-longueur = 1;
+longueur_y = 0.1;
+longueur_x = 1;
 
 % 1 Unit square
-nodes = [-1 -1; 1 -1 ; 1 1; -1 1;pos_x pos_y ; pos_x+longueur pos_y; pos_x+longueur pos_y+epaisseur ;pos_x pos_y+epaisseur];
+nodes = [-1 -1; 1 -1 ; 1 1; -1 1;pos_x pos_y ; pos_x+longueur_x pos_y; pos_x+longueur_x pos_y+longueur_y ;pos_x pos_y+longueur_y];
 edges = {{1,2} {2,3} {3,4} {4,1} {5,6,'lr'} {6,7,'lr'} {7,8,'lr'} {8,5,'lr'}}; 
 domain1 = Domain(nodes,edges);
 
@@ -58,13 +58,13 @@ beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
 beta_fiss = rho_fiss*cp_fiss ; % rho*cp dans la fissure
 
 % Plaque avec fissures
-alpha = 1* mesh1.P0([ num2str(pos_x) '<=x']).*mesh1.P0(['x<=' num2str(pos_x+longueur)]).*mesh1.P0([num2str(pos_y) '<=y']).*mesh1.P0(['y<= ' num2str(pos_y+epaisseur)]); % Indicatrice : 1 dans la fissure 0 sinon
+alpha = 1* mesh1.P0([ num2str(pos_x) '<=x']).*mesh1.P0(['x<=' num2str(pos_x+longueur_x)]).*mesh1.P0([num2str(pos_y) '<=y']).*mesh1.P0(['y<= ' num2str(pos_y+longueur_y)]); % Indicatrice : 1 dans la fissure 0 sinon
 Beta = (beta_plaque/lambda_plaque)*(1+(beta_fiss-beta_plaque)/beta_plaque*alpha); % Vecteur Rho*cp sur chaque triangle
 Lambda = 1+(lambda_fiss/lambda_plaque-1)*alpha; % Vecteur Conductivite thermique (lambda) sur les triangles
 
 % Iteration
-niter = 200; % Nombre d'iterations pour la resolution
-dt =10^(-8); % Pas en temps
+niter = 1000; % Nombre d'iterations pour la resolution
+dt =10^(-1); % Pas en temps
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%% Matrices d'iterations %%%%%%%%
@@ -103,9 +103,9 @@ B = A\M;
 
 %%% Laser
 Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
-S = Sv *10^(-2)/lambda_plaque; % Puissance volumique du laser utilisee
+S = Sv *10^(-9)/lambda_plaque; % Puissance volumique du laser utilisee
 % Second membre
-Fc = dt*S*mesh1.P1('exp(-(x.^2+y.^2)/0.1)');% Gaussien
+Fc = dt*S*mesh1.P1('exp(-(x.^2+y.^2)/0.05)');% Gaussien
 %Fc=dt*S*mesh1.P1('x.^2+y.^2<0.2^2');% Cercle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
