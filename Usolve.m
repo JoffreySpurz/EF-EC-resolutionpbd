@@ -4,7 +4,7 @@
 % U : matrice de la temperature dans la plaque
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ U ] = Usolve(B, Fc, niter)
+function [ U ] = Usolve(B, Fc, nP, niter)
 %%% Condition initiale %%%
 U = sparse(nP, niter); 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -12,7 +12,7 @@ U = sparse(nP, niter);
 
 %%% Resolution %%%
 for i=2:niter
-    U(:,k) = B*(U(:,k-1)+Fc);
+    U(:,i) = B*(U(:,i-1)+Fc);
 end
 %%%%%%%%%%%%%%%%%%%%%
 end
