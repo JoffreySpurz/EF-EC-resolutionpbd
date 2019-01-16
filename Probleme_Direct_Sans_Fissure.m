@@ -12,7 +12,7 @@ clear; close all;
 domain1 = Domain('square');
 
 % mesh
-dx = 0.1; % taille d'un element
+dx = 0.05; % taille d'un element
 mesh1 = Mesh(domain1,dx,'save');
 
 % Liste des sommets
@@ -40,8 +40,8 @@ beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
 lambda_plaque = 50.2; % conductivite thermique (W/m/K) : valeur de l'acier 
 
 % Iteration
-niter = 15; % Nombre d'iterations pour la resolution
-dt =10^(-6); % Pas en temps
+niter = 200; % Nombre d'iterations pour la resolution
+dt =10^(-8); % Pas en temps
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%% Matrices d'iterations %%%%%%%%
@@ -54,7 +54,7 @@ Kc = dt*mesh1.stiffness(LAMBDA);%matriceK(P, T, Lambda, dt);
 
 %%% Masse
 % Paramètre : Conductivite thermique (lambda) sur les triangles
-BETA = mesh1.P0(1);
+BETA = mesh1.P0(beta_plaque/lambda_plaque);
 % Matrice de masse
 M = mesh1.mass(BETA);
 %mesh1.mass(Beta.*ones(nT,1));
@@ -71,8 +71,8 @@ nI = length(I);
 % CL de Dirichlet
 A(I,:) = 0;
 A(I,I) = speye(nI);
-Mc(I,:) = 0;
-Mc(I,I) = speye(nI);
+M(I,:) = 0;
+M(I,I) = speye(nI);
 
 % Probleme X(n) = A\M ( X(n-1) + F ) = B ( X(n-1) + F )
 B = A\M;
@@ -80,7 +80,7 @@ B = A\M;
 
 %%% Laser
 Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
-S = Sv *10^(-5); % Puissance volumique du laser utilisee
+S = Sv *10^(-2)/lambda_plaque; % Puissance volumique du laser utilisee
 % Second membre
 Fc = dt*S*mesh1.P1('exp(-(x.^2+y.^2)/0.1)');% Gaussien
 %Fc=dt*S*mesh1.P1('x.^2+y.^2<0.2^2');% Cercle

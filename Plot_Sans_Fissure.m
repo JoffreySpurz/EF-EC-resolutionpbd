@@ -15,14 +15,14 @@ load('Probleme_direct_sans_fissure','U', 'mesh1')
 
 %%%%%%%%% Affichage %%%%%%%%%%%
 niter = length(U(1,:));
-pas = 1;
+pas = 5;
 
 %%% Avec laser
 for i = 1:pas:niter
     %%% Affichage
     mesh1.surf(U(:,i))
     %caxis([0 0.05])
-    pause(0.01)
+    pause(0.1)
 end
 
 % % On indique que le laser va etre coupe
