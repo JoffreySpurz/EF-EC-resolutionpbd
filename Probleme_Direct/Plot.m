@@ -8,8 +8,15 @@ clear; close all;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%% Load %%%%%%%%%%
+% Avec (1) ou sans (0) fissure ?
+isfissure = 1;
+
 % Resolution
-load('Probleme_direct_avec_fissure_rectangulaire','U', 'mesh1', 'niter_laser')
+if isfissure == 1
+    load('Probleme_direct_avec_fissure_rectangulaire','U', 'mesh1', 'niter_laser')
+else
+    load('Probleme_direct_sans_fissure','U', 'mesh1', 'niter_laser')
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

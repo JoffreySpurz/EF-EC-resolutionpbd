@@ -8,6 +8,9 @@ clear; close all;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%% Maillage %%%%%%%%%%
+% Avec (1) ou sans (0) fissure ?
+isfissure = 1;
+
 % Fissure carree
 pos_x = -0.5;
 pos_y = 0.25;
@@ -15,8 +18,13 @@ longueur_y = 0.1;
 longueur_x = 1;
 
 % 1 Unit square
-nodes = [-1 -1; 1 -1 ; 1 1; -1 1;pos_x pos_y ; pos_x+longueur_x pos_y; pos_x+longueur_x pos_y+longueur_y ;pos_x pos_y+longueur_y];
-edges = {{1,2} {2,3} {3,4} {4,1} {5,6,'lr'} {6,7,'lr'} {7,8,'lr'} {8,5,'lr'}}; 
+if isfissure == 1
+    nodes = [-1 -1; 1 -1 ; 1 1; -1 1;pos_x pos_y ; pos_x+longueur_x pos_y; pos_x+longueur_x pos_y+longueur_y ;pos_x pos_y+longueur_y];
+    edges = {{1,2} {2,3} {3,4} {4,1} {5,6,'lr'} {6,7,'lr'} {7,8,'lr'} {8,5,'lr'}}; 
+else
+    nodes = [-1 -1; 1 -1 ; 1 1; -1 1];
+    edges = {{1,2} {2,3} {3,4} {4,1}};
+end
 domain1 = Domain(nodes,edges);
 
 % mesh
@@ -50,7 +58,7 @@ lambda_fiss = 0.024; %  valeur de l'air
 
 % Masse volumique (Kg/m^3)
 rho_plaque = 7850;% valeur de l'acier
-rho_fiss = 1;% valeur ad hoc
+rho_fiss = 1;% valeur de l'air
 
 % Capacite thermique massique (J/K/Kg)
 cp_plaque = 444;% valeur de l'acier
@@ -61,7 +69,12 @@ beta_plaque = rho_plaque*cp_plaque; % rho*cp dans la plaque
 beta_fiss = rho_fiss*cp_fiss ; % rho*cp dans la fissure
 
 % Plaque avec fissures
-alpha = 1* mesh1.P0([ num2str(pos_x) '<=x']).*mesh1.P0(['x<=' num2str(pos_x+longueur_x)]).*mesh1.P0([num2str(pos_y) '<=y']).*mesh1.P0(['y<= ' num2str(pos_y+longueur_y)]); % Indicatrice : 1 dans la fissure 0 sinon
+if isfissure == 1
+    alpha = 1* mesh1.P0([ num2str(pos_x) '<=x']).*mesh1.P0(['x<=' num2str(pos_x+longueur_x)]).*mesh1.P0([num2str(pos_y) '<=y']).*mesh1.P0(['y<= ' num2str(pos_y+longueur_y)]); % Indicatrice : 1 dans la fissure 0 sinon
+else
+    alpha = mesh1.P0(0);
+end
+
 Beta = (beta_plaque/lambda_plaque)*(1+(beta_fiss-beta_plaque)/beta_plaque*alpha); % Vecteur Rho*cp sur chaque triangle
 Lambda = 1+(lambda_fiss/lambda_plaque-1)*alpha; % Vecteur Conductivite thermique (lambda) sur les triangles
 
@@ -76,14 +89,14 @@ niter_laser = floor(Tstop/dt); % Nombre d'iterations pour le laser
 %%%%% Matrices d'iterations %%%%%%%%
 %%% Raideur
 % Paramètre : Rho*cp sur chaque triangle
-LAMBDA = mesh1.P0(Lambda*l,2);
+LAMBDA = mesh1.P0(Lambda,2);
 % Matrice de raideur
 Kc = l^2*dt*mesh1.stiffness(LAMBDA);%matriceK(P, T, Lambda, dt);
 
 
 %%% Masse
 % Paramètre : Conductivite thermique (lambda) sur les triangles
-BETA = mesh1.P0(Beta*l^3);
+BETA = mesh1.P0(Beta*l^2);
 % Matrice de masse
 M = mesh1.mass(BETA);
 %mesh1.mass(Beta.*ones(nT,1));
@@ -111,7 +124,7 @@ B = A\M;
 
 %%% Laser
 Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
-S = Sv*l^3/lambda_plaque; % Puissance volumique du laser utilisee
+S = Sv*l^3/(lambda_plaque*l); % Puissance volumique du laser utilisee
 % Second membre
 sigma = 0.005;
 Fc = dt*S*mesh1.P1(['exp(-0.5*(x.^2+y.^2)/' num2str(sigma^2) ')']);% Gaussien
@@ -125,5 +138,9 @@ disp('Debut des iterations')
 U = Usolve(B, Fc, nP, niter, niter_laser);
 
 %%% Save
-save('Probleme_direct_avec_fissure_rectangulaire','U', 'mesh1', 'niter_laser')
+if isfissure ==1
+    save('Probleme_direct_avec_fissure_rectangulaire','U', 'mesh1', 'niter_laser')
+else 
+    save('Probleme_direct_sans_fissure','U', 'mesh1', 'niter_laser')
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
