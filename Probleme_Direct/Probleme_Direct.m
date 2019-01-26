@@ -79,8 +79,8 @@ Beta = (beta_plaque/lambda_plaque)*(1+(beta_fiss-beta_plaque)/beta_plaque*alpha)
 Lambda = 1+(lambda_fiss/lambda_plaque-1)*alpha; % Vecteur Conductivite thermique (lambda) sur les triangles
 
 % Iteration
-T = 100000;% Temps (s) final d'experience
-Tstop = T/3;% Temps (s) d'arret du laser
+T = 10;% Temps (s) final d'experience
+Tstop = floor(T/3);% Temps (s) d'arret du laser
 dt =T/100; % Pas en temps
 niter = floor(T/dt); % Nombre d'iterations pour la resolution
 niter_laser = floor(Tstop/dt); % Nombre d'iterations pour le laser
@@ -91,20 +91,21 @@ niter_laser = floor(Tstop/dt); % Nombre d'iterations pour le laser
 % Paramètre : Rho*cp sur chaque triangle
 LAMBDA = mesh1.P0(Lambda,2);
 % Matrice de raideur
-Kc = l^2*dt*mesh1.stiffness(LAMBDA);%matriceK(P, T, Lambda, dt);
+Kc = dt*mesh1.stiffness(LAMBDA);%matriceK(P, T, Lambda, dt);
 
 
 %%% Masse
 % Paramètre : Conductivite thermique (lambda) sur les triangles
 BETA = mesh1.P0(Beta*l^2);
 % Matrice de masse
-M = mesh1.mass(BETA);
+Mc = mesh1.mass(BETA);
+M = mesh1.mass();
 %mesh1.mass(Beta.*ones(nT,1));
 
 
 %%% Membre de gauche
-% Probleme AX(n) = M( X(n-1) + F )
-A = M + Kc;
+% Probleme AX(n) = McX(n-1) + Fc
+A = Mc + Kc;
 
 %%% Prise en compte des CL %%%
 % Nombre de points du bord
@@ -115,19 +116,21 @@ A(I,:) = 0;
 A(I,I) = speye(nI);
 M(I,:) = 0;
 M(I,I) = speye(nI);
+Mc(I,:) = 0;
+Mc(I,I) = speye(nI);
 
-disp('Construction de B')
+%disp('Construction de B')
 
 % Probleme X(n) = A\M ( X(n-1) + F ) = B ( X(n-1) + F )
-B = A\M;
+%B = A\M;
 
 
 %%% Laser
 Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
 S = Sv*l^3/(lambda_plaque*l); % Puissance volumique du laser utilisee
-% Second membre
+% Second membre 
 sigma = 0.005;
-Fc = dt*S*mesh1.P1(['exp(-0.5*(x.^2+y.^2)/' num2str(sigma^2) ')']);% Gaussien
+Fc = M*dt*S/sqrt(2*pi*sigma^2)*mesh1.P1(['exp(-0.5*(x.^2+y.^2)/' num2str(sigma^2) ')']);% Gaussien
 %Fc=dt*S*mesh1.P1('x.^2+y.^2<0.2^2');% Cercle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -135,7 +138,7 @@ disp('Debut des iterations')
 
 %%%%%%%%% Resolution %%%%%%%%%%%
 %%% Avec laser
-U = Usolve(B, Fc, nP, niter, niter_laser);
+U = Usolve(A, Mc, Fc, nP, niter, niter_laser);
 
 %%% Save
 if isfissure ==1

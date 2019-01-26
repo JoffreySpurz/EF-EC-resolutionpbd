@@ -4,18 +4,19 @@
 % U : matrice de la temperature dans la plaque
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ U ] = Usolve(B, Fc, nP, niter, niter_laser)
+function [ U ] = Usolve(A, Mc, Fc, nP, niter, niter_laser)
 %%% Condition initiale %%%
 U = zeros(nP, niter); 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Si niter_laser est defini
-if nargin == 5
+if nargin == 6
+    B = A\Mc;
     
 %%% Resolution %%%
     % Avec laser
     for i=2:niter_laser
-        U(:,i) = B*(U(:,i-1)+Fc);
+        U(:,i) = A\(Mc*U(:,i-1)+Fc);
     end
     
     % Sans laser
@@ -31,7 +32,7 @@ else
 %%% Resolution %%%
     % Avec laser
     for i=2:niter
-        U(:,i) = B*(U(:,i-1)+Fc);
+        U(:,i) = A\(Mc*U(:,i-1)+Fc);
     end
 %%%%%%%%%%%%%%%%%%%%%
 end
