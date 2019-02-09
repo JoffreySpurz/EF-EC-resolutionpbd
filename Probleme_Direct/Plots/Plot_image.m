@@ -9,7 +9,7 @@ clear; close all;
 
 %%%%%%%%%% Load %%%%%%%%%%
 % Resolution
-load('Image_T10_Tstop3_100dt10_100dx5_isfissure1_maillage1')
+load('Image_T10_Tstop3_100dt10_100dx5_isfissure1_maillage0')
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

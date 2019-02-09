@@ -31,7 +31,7 @@ end
 domain1 = Domain(nodes,edges);
 
 % mesh
-dx = 0.05; % taille d'un element
+dx = 0.1; % taille d'un element
 mesh1 = Mesh(domain1,dx,'save');
 
 % Liste des sommets
@@ -128,7 +128,8 @@ Sv = 8*10^9 ; % Puissance volumique du laser applique a la plaque (W/m^3)
 S = Sv*l^3/(lambda_plaque*l); % Puissance volumique du laser utilisee
 % Second membre 
 sigma = 0.005;
-Fc = M*dt*S/sqrt(2*pi*sigma^2)*mesh1.P1(['exp(-0.5*(x.^2+y.^2)/' num2str(sigma^2) ')']);% Gaussien
+F = mesh1.P1(['exp(-0.5*(x.^2+y.^2)/' num2str(sigma^2) ')']);% Gaussien
+Fc = M*dt*S/sqrt(2*pi*sigma^2)*(F/max(F)) ;
 %Fc=dt*S*mesh1.P1('x.^2+y.^2<0.2^2');% Cercle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
